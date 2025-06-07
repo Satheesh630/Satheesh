@@ -1,0 +1,10 @@
+#include<stdio.h>
+
+struct st
+{
+	int x,y; 
+};
+extern int x;
+extern struct st v;
+void px();
+void ps();

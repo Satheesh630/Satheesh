@@ -1,0 +1,15 @@
+1.Constructors
+	i.string s(str1,pos,len);
+	ii.str2=str1;--->copy constructor
+
+	iii.string str(n,'c')-->object str initialised with 5 contegious n's
+2.Capacity/Size
+	i.size(),length().--->str.size()
+	ii.resize(),resize(n,'c')-->resizes increese or decreese sizes
+	iii.empty()-->Returns true if string is empty.
+3.Position
+	i.str[i]
+	ii.str.at(pos);-->Gives a char which  is at the pos
+	iii.front,back-->gives first and second char references of a string.
+	iv.
+	

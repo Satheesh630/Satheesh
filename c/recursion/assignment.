@@ -1,0 +1,25 @@
+#include<stdio.h>
+int count(int);
+void main()
+{
+
+}
+int count(int num)
+{
+
+if(num==0)
+return;
+int r=num%10;
+static int c=0;
+if(r<6)
+{
+c++;
+count(num/10);
+}
+else
+count(num/10);
+
+return c;
+
+
+}
