@@ -1,0 +1,25 @@
+# for comment
+-> In python everything is an object
+->Numaric:
+    int
+    float
+    complex
+        String 
+            i)Is immutable(Not modification) like const char *
+            ii)
+        list
+            i)It is like dynamic array 
+            ii)Mutable
+        Tuple
+            i)Faster than list
+            ii)Immutable 
+        Set
+            i)Uniq elements only
+            ii)Like hash table
+        Boolean
+        None
+            x=none
+            *like NULL in c in a safer way
+
+    ->Slower than C
+    
