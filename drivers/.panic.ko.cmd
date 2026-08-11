@@ -1,0 +1,1 @@
+savedcmd_/home/mirafra/Satheesh/drivers/panic.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/mirafra/Satheesh/drivers/panic.ko /home/mirafra/Satheesh/drivers/panic.o /home/mirafra/Satheesh/drivers/panic.mod.o
