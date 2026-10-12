@@ -6,7 +6,8 @@
 #include <linux/usb.h>
 #include <linux/slab.h>
 #include <linux/types.h>
-#include <linux/printk.h>
+#include <linux/usb/uas.h>
+//#include <linux/printk.h>
 
 #define VENDOR_ID   0x0bda
 #define PRODUCT_ID  0x9210

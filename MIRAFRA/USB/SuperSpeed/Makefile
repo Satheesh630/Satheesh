@@ -10,4 +10,3 @@ all:
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
-	

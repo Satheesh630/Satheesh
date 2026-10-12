@@ -5,8 +5,7 @@ MODULE_AUTHOR("Satheesh Kumar Namala");
 MODULE_DESCRIPTION("SuperSpeed USB Driver with Streams Support");
 
 /* Probe function */
-static int my_probe(struct usb_interface *interface,
-                    const struct usb_device_id *id)
+static int my_probe(struct usb_interface *interface,const struct usb_device_id *id)
 {
     struct usb_host_interface *iface;
     struct usb_device *udev;
@@ -24,10 +23,8 @@ static int my_probe(struct usb_interface *interface,
 
     my_uas->udev = udev;
     my_uas->interface = interface;
-
-    ret = usb_set_interface(udev,
-                             interface->cur_altsetting->desc.bInterfaceNumber,
-                             1);
+    
+    ret = usb_set_interface(udev,interface->cur_altsetting->desc.bInterfaceNumber,1);
     if (ret) {
         pr_err("SuperSpeed: Failed to set interface: %d\n", ret);
         goto err_free_uas;
@@ -48,11 +45,7 @@ static int my_probe(struct usb_interface *interface,
         pr_err("SuperSpeed: Failed to find USB information: %d\n", ret);
         goto err_free_uas;
     }
-
-    /*
-     * Make sure find_usb_information() actually returned
-     * struct usb_host_endpoint pointers.
-     */
+    // check wether the required endpoints are found successfully or not
     if (!my_uas->data_out_ep ||!my_uas->data_in_ep ||!my_uas->status_ep) {
         pr_err("UAS: Missing required stream endpoint\n");
         ret = -ENODEV;
@@ -67,14 +60,13 @@ static int my_probe(struct usb_interface *interface,
     eps[1] = my_uas->data_in_ep;
     eps[2] = my_uas->status_ep;
 
-    ret = usb_alloc_streams(interface,eps,ARRAY_SIZE(eps),32,GFP_KERNEL);
+    ret = usb_alloc_streams(interface,eps,3,32,GFP_KERNEL); // Can also use ARRAY_SIZE(eps) instead of 3
     if (ret < 0) {
         pr_err("SuperSpeed: Failed to allocate streams: %d\n", ret);
         goto err_free_uas;
     }
 
     pr_info("UAS: usb_alloc_streams returned %d\n", ret);
-
     usb_set_intfdata(interface, my_uas);
     uas_inquiry(my_uas);
 
@@ -83,11 +75,7 @@ static int my_probe(struct usb_interface *interface,
     return 0;
 
 err_free_streams:
-    usb_free_streams(interface,
-                     eps,
-                     ARRAY_SIZE(eps),
-                     GFP_KERNEL);
-
+    usb_free_streams(interface,eps,ARRAY_SIZE(eps),GFP_KERNEL);
     usb_set_intfdata(interface, NULL);
 
 err_free_uas:
@@ -95,7 +83,6 @@ err_free_uas:
 
     return ret;
 }
-
 
 /* USB Device ID table */
 
@@ -139,10 +126,7 @@ static void my_disconnect(struct usb_interface *interface)
     eps[1] = my_uas->data_in_ep;
     eps[2] = my_uas->status_ep;
 
-    usb_free_streams(my_uas->interface,
-                     eps,
-                     ARRAY_SIZE(eps),
-                     GFP_KERNEL);
+    usb_free_streams(my_uas->interface,eps,ARRAY_SIZE(eps),GFP_KERNEL);
 
     kfree(my_uas);
 
@@ -159,5 +143,5 @@ static struct usb_driver super_speed_driver = {
 };
 
 
-/* Module registration */
+/* Module registration  macro */
 module_usb_driver(super_speed_driver);

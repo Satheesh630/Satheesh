@@ -4,6 +4,7 @@ static void uas_command_complete(struct urb *urb);
 static void uas_data_in_complete(struct urb *urb);
 static void uas_status_complete(struct urb *urb);
 
+/* Get the UAS endpoints and stream information from the selected alt setting. */
 int find_usb_information(struct usb_host_interface *iface, struct uas_device *my_uas)
 {
     int i;
@@ -13,8 +14,8 @@ int find_usb_information(struct usb_host_interface *iface, struct uas_device *my
 
     for (i = 0; i < iface->desc.bNumEndpoints; i++) {
 
-        struct usb_host_endpoint *hep; // For endpoint address
-        struct usb_endpoint_descriptor *ep;     // Endpoint descriptor address
+        struct usb_host_endpoint *hep;
+        struct usb_endpoint_descriptor *ep;
         unsigned int exponent;
         unsigned int streams;
 
@@ -48,12 +49,12 @@ int find_usb_information(struct usb_host_interface *iface, struct uas_device *my
 
             my_uas->data_out_ep = hep;
             my_uas->data_out_streams = streams;
-            pr_info("  ==> DATA OUT endpoint\n");
+            pr_info("DATA OUT endpoint\n");
         }
         else if (ep->bEndpointAddress == EP_DATA_IN) {
             my_uas->data_in_ep = hep;
             my_uas->data_in_streams = streams;
-            pr_info("  ==> DATA IN endpoint\n");
+            pr_info("DATA IN endpoint\n");
         }
         else if (ep->bEndpointAddress == EP_STATUS) {
 
@@ -72,15 +73,14 @@ int find_usb_information(struct usb_host_interface *iface, struct uas_device *my
     my_uas->max_streams = my_uas->status_streams;
 
     if (my_uas->data_in_streams > my_uas->max_streams)
-        my_uas->max_streams = my_uas->data_in_streams;
+                my_uas->max_streams = my_uas->data_in_streams;
 
     if (my_uas->data_out_streams > my_uas->max_streams)
-        my_uas->max_streams = my_uas->data_out_streams;
+                my_uas->max_streams = my_uas->data_out_streams;
 
     pr_info("\n-------------UAS INFORMATION -----------------\n");
 
-    pr_info("Command EP       : 0x%02x\n",
-            my_uas->command_ep->desc.bEndpointAddress);
+    pr_info("Command EP       : 0x%02x\n",my_uas->command_ep->desc.bEndpointAddress);
 
     pr_info("Command Streams  : %u\n",my_uas->command_streams);
 
@@ -103,21 +103,11 @@ int find_usb_information(struct usb_host_interface *iface, struct uas_device *my
     return 0;
 }
 
-
-
+/* Send a simple TEST UNIT READY command. */
 int uas_test_unit_ready(struct uas_device *dev)
 {
-   // struct uas_tur *tur;
-    int ret;
 
-    //tur = kzalloc(sizeof(*tur), GFP_KERNEL);
-    //if (!tur)
-      //  return -ENOMEM;
-    /*
-     * Allocate URBs
-     */
- //   tur->cmd_urb = usb_alloc_urb(0, GFP_KERNEL);
-   // tur->status_urb = usb_alloc_urb(0, GFP_KERNEL);
+    int ret;
     struct urb *cmd_urb = usb_alloc_urb(0, GFP_KERNEL);
     struct urb *status_urb = usb_alloc_urb(0, GFP_KERNEL);
 
@@ -127,18 +117,12 @@ int uas_test_unit_ready(struct uas_device *dev)
     }
     dev->cmd_urb = cmd_urb;
     dev->status_urb = status_urb;
-    /*
-     * Allocate Command IU
-     */
+
     struct uas_command_iu *cmd_iu = kzalloc(sizeof(*cmd_iu), GFP_KERNEL);
-    //tur->cmd_iu = kzalloc(sizeof(*tur->cmd_iu), GFP_KERNEL);
+
     dev->cmd_iu = cmd_iu;
 
-    /*
-     * Allocate buffer for Status/Response IU
-     */
 
-   // tur->status_buf = kzalloc(64, GFP_KERNEL);
     u8 *status_buf = kzalloc(64, GFP_KERNEL);
     dev->status_buf = status_buf;
 
@@ -146,121 +130,61 @@ int uas_test_unit_ready(struct uas_device *dev)
         ret = -ENOMEM;
         goto error;
     }
-    // Generate UAS tag
-    
+
     u16 tag;
     tag = ++dev->next_tag;
 
-    cmd_iu->iu_id = 0x01;       /* Command IU */
+    cmd_iu->iu_id = 0x01;
     cmd_iu->tag = cpu_to_le16(tag);
 
-    /*
-     * LUN 0
-     */
-    memset(cmd_iu->lun, 0, sizeof(cmd_iu->lun));
-
-    /*
-     * SCSI TEST UNIT READY
-     *
-     * CDB byte 0 = 0x00
-     */
     cmd_iu->cdb[0] = 0x00;
 
-    /*
-     * Prepare Status URB FIRST
-     *
-     * Device will return the response on Status EP 0x81.
-     */
     usb_fill_bulk_urb(status_urb,dev->udev,usb_rcvbulkpipe(dev->udev, dev->status_ep->desc.bEndpointAddress),status_buf,64,uas_status_complete,dev);
-
-    /*
-     * Status endpoint supports streams,
-     * but stream ID is not necessary for this
-     * first simple test.
-     */
 
     status_urb->stream_id = 1;
     pr_info("UAS: Submitting STATUS URB\n");
-    pr_info("    endpoint = 0x%02x\n",
-        dev->status_ep->desc.bEndpointAddress);
-    pr_info("    stream   = %u\n",
-        status_urb->stream_id);
-    pr_info("    length   = %u\n",
-        status_urb->transfer_buffer_length);
+    pr_info("    endpoint = 0x%02x\n",dev->status_ep->desc.bEndpointAddress);
+    pr_info("    stream   = %u\n",status_urb->stream_id);
+    pr_info("    length   = %u\n",status_urb->transfer_buffer_length);
 
     ret = usb_submit_urb(status_urb, GFP_KERNEL);
 
     if (ret) {
         pr_err("UAS: Status URB submit failed: %d\n", ret);
-      //  usb_kill_urb(status_urb);
+
         goto error;
     }
     pr_info("UAS: STATUS URB submitted successfully\n");
-    /*
-     * Prepare Command URB
-     * Command EP = 0x04 OUT
-     */
-    usb_fill_bulk_urb(
-        cmd_urb,
-        dev->udev,
-        usb_sndbulkpipe(dev->udev, dev->command_ep->desc.bEndpointAddress),
-        cmd_iu,
-        sizeof(*cmd_iu),
-        uas_command_complete, // completion call back 
-        dev // context in completion urb->status we can  find this pointer as a context we can use variables in it just we get the same pointer
-    );
 
-    /*
-     * Command endpoint is not streamed.
-     */
+    usb_fill_bulk_urb(cmd_urb,dev->udev,usb_sndbulkpipe(dev->udev, dev->command_ep->desc.bEndpointAddress),cmd_iu,sizeof(*cmd_iu),uas_command_complete,dev);
+
     cmd_urb->stream_id = 0;
     pr_info("UAS: Submitting COMMAND URB\n");
     pr_info("    endpoint = 0x%02x\n",dev->command_ep->desc.bEndpointAddress);
     pr_info("    stream   = %u\n",cmd_urb->stream_id);
     pr_info("    length   = %u\n",cmd_urb->transfer_buffer_length);
-
-    {
+    
         pr_info("UAS: Command IU size = %zu\n", sizeof(*cmd_iu));
-
-print_hex_dump(KERN_INFO,
-               "UAS CMD IU: ",
-               DUMP_PREiFIX_OFFSET,
-               16,
-               1,
-               cmd_iu,
-               sizeof(*cmd_iu),
-true);
-    }
     ret = usb_submit_urb(cmd_urb, GFP_KERNEL);
-
     if (ret) {
         pr_err("UAS: Command URB submit failed: %d\n", ret);
-
         usb_kill_urb(status_urb);
-
         goto error;
     }
-
     pr_info("UAS: TEST UNIT READY sent, tag=%u\n",tag);
-          //  uas_command_complete(status_urb);
     return 0;
-error:
+error:    
 
     if (cmd_urb)
         usb_free_urb(cmd_urb);
-
     if (status_urb)
         usb_free_urb(status_urb);
-
     kfree(cmd_iu);
     kfree(status_buf);
-  //  kfree(tur);
-
     return ret;
 }
 
-
-
+/* Send a SCSI INQUIRY command and receive the response. */
 int uas_inquiry(struct uas_device *dev)
 {
     int ret = 0;
@@ -275,10 +199,6 @@ int uas_inquiry(struct uas_device *dev)
     u8 *data_in_buf = NULL;
     u8 *status_buf = NULL;
 
-    /*
-     * Allocate URBs
-     */
-
     cmd_urb = usb_alloc_urb(0, GFP_KERNEL);
     data_in_urb = usb_alloc_urb(0, GFP_KERNEL);
     status_urb = usb_alloc_urb(0, GFP_KERNEL);
@@ -288,20 +208,13 @@ int uas_inquiry(struct uas_device *dev)
         goto error;
     }
 
-    /*
-     * Allocate Command IU
-     */
-
     cmd_iu = kzalloc(sizeof(*cmd_iu), GFP_KERNEL);
 
     if (!cmd_iu) {
         ret = -ENOMEM;
+
         goto error;
     }
-
-    /*
-     * Allocate INQUIRY data buffer
-     */
 
     data_in_buf = kzalloc(INQUIRY_LENGTH, GFP_KERNEL);
 
@@ -310,10 +223,6 @@ int uas_inquiry(struct uas_device *dev)
         goto error;
     }
 
-    /*
-     * Allocate Status IU buffer
-     */
-
     status_buf = kzalloc(64, GFP_KERNEL);
 
     if (!status_buf) {
@@ -321,8 +230,7 @@ int uas_inquiry(struct uas_device *dev)
         goto error;
     }
 
-    // Update to our structure
-      Save pointers in device structure.
+
 
     dev->cmd_urb = cmd_urb;
     dev->data_in_urb = data_in_urb;
@@ -333,48 +241,17 @@ int uas_inquiry(struct uas_device *dev)
     dev->data_in_buf = data_in_buf;
     dev->status_buf = status_buf;
 
-    // Allocate tag starting tag  is 1 
     tag = ++dev->next_tag;
 
     if (tag == 0)
         tag = ++dev->next_tag;
 
-    // build the command IU for SCSI INQUIRY command
-
     cmd_iu->iu_id = 0x01;
-
-    /*
-     * UAS tag is big endian.
-     */
-
     cmd_iu->tag = cpu_to_be16(tag);
-    
     cmd_iu->prio_attr = 0x00;
-
-    /*
-     * No additional CDB bytes.
-     */
-
     cmd_iu->len = 0;
 
-    /*
-     * LUN 0.
-     */
-
     memset(cmd_iu->lun, 0, sizeof(cmd_iu->lun));
-
-    /*
-     * ---------------------------------------------------------
-     * SCSI INQUIRY CDB
-     * ---------------------------------------------------------
-     *
-     * Byte 0 = 0x12  INQUIRY
-     * Byte 1 = 0x00  EVPD = 0
-     * Byte 2 = 0x00  Page Code
-     * Byte 3 = 0x00
-     * Byte 4 = 0x60  Allocation Length = 96
-     * Byte 5 = 0x00
-     */
 
     memset(cmd_iu->cdb, 0, sizeof(cmd_iu->cdb));
 
@@ -384,7 +261,6 @@ int uas_inquiry(struct uas_device *dev)
     cmd_iu->cdb[3] = 0x00;
     cmd_iu->cdb[4] = INQUIRY_LENGTH;
     cmd_iu->cdb[5] = 0x00;
-
 
     usb_fill_bulk_urb(status_urb,dev->udev,usb_rcvbulkpipe(dev->udev,dev->status_ep->desc.bEndpointAddress),status_buf,64,uas_status_complete,dev);
 
@@ -428,11 +304,8 @@ int uas_inquiry(struct uas_device *dev)
     }
 
     pr_info("UAS: DATA-IN URB submitted successfully\n");
-
     usb_fill_bulk_urb(cmd_urb,dev->udev,usb_sndbulkpipe(dev->udev,dev->command_ep->desc.bEndpointAddress),cmd_iu,sizeof(*cmd_iu),uas_command_complete,dev);
-
-    cmd_urb->stream_id = 0; // Command endpoint is dont have streams
-
+    cmd_urb->stream_id = 0;
     pr_info("UAS: Submitting INQUIRY COMMAND URB\n");
 
     pr_info("    endpoint = 0x%02x\n",dev->command_ep->desc.bEndpointAddress);
@@ -459,7 +332,7 @@ int uas_inquiry(struct uas_device *dev)
     return 0;
 
 error:
-    // Kill previously submitted URBs 
+
     if (cmd_urb)
         usb_kill_urb(cmd_urb);
 
@@ -497,7 +370,7 @@ error:
     return ret;
 }
 
-
+/* Command URB completion callback. */
 static void uas_command_complete(struct urb *urb)
 {
     if (urb->status) {
@@ -508,6 +381,7 @@ static void uas_command_complete(struct urb *urb)
     pr_info("UAS: INQUIRY Command IU transmitted successfully\n");
 }
 
+/* Data-IN URB completion callback. */
 static void uas_data_in_complete(struct urb *urb)
 {
     struct uas_device *dev = urb->context;
@@ -527,10 +401,6 @@ static void uas_data_in_complete(struct urb *urb)
 
     print_hex_dump(KERN_INFO,"UAS INQUIRY: ",DUMP_PREFIX_OFFSET,16,1,urb->transfer_buffer,urb->actual_length,true);
 
-    /*
-     * Print the standard INQUIRY fields if enough data arrived.
-     */
-
     if (urb->actual_length >= 36) {
 
         u8 *buf = urb->transfer_buffer;
@@ -545,27 +415,15 @@ static void uas_data_in_complete(struct urb *urb)
 
         pr_info("    Response Data Format  : 0x%02x\n",buf[3] & 0x0f);
 
-        /*
-         * Bytes 8-15: Vendor Identification
-         */
-
         pr_info("    Vendor                 : %.8s\n",&buf[8]);
-
-        /*
-         * Bytes 16-31: Product Identification
-         */
 
         pr_info("    Product                : %.16s\n",&buf[16]);
 
-        /*
-         * Bytes 32-35: Product Revision
-         */
-
         pr_info("    Revision               : %.4s\n",&buf[32]);
     }
-
 }
 
+/* Status URB completion callback. */
 static void uas_status_complete(struct urb *urb)
 {
     struct uas_device *dev = urb->context;
@@ -602,16 +460,7 @@ static void uas_status_complete(struct urb *urb)
 
         pr_info("    IU ID = 0x%02x\n",buf[0]);
 
-        /*
-         * UAS status IU contains the tag in bytes 2-3.
-         */
-
         pr_info("    Tag   = %u\n",be16_to_cpup((__be16 *)&buf[2]));
-
-        /*
-         * SCSI status is in the Status IU.
-         * For a successful command it should normally be 0x00.
-         */
 
         pr_info("    SCSI status = 0x%02x\n",buf[11]);
     }

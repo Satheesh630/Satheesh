@@ -49,8 +49,7 @@ struct my_device {
 
 	u8 bulk_in;
 	u8 bulk_out;
-	struct usb_ss_ep_comp_descriptor bulk_in_comp;
-	struct usb_ss_ep_comp_descriptor bulk_out_comp;
+	
 };
 
 
@@ -85,7 +84,6 @@ static int inquiry(struct my_device *dev)
 		kfree(cbw);
 		return -ENOMEM;
 	}
-
 
 	/*
 	 * Build CBW
@@ -476,13 +474,11 @@ static int test_unit_ready(struct my_device *dev)
 	}
 
 
-	pr_info("sd_reader: TEST UNIT READY CSW received %d bytes\n",
-			actual);
+	pr_info("sd_reader: TEST UNIT READY CSW received %d bytes\n",actual);
 
 
 	if (actual != sizeof(*csw)) {
-		pr_err("sd_reader: TEST UNIT READY CSW size error: %d\n",
-				actual);
+		pr_err("sd_reader: TEST UNIT READY CSW size error: %d\n",actual);
 		ret = -EIO;
 		goto out;
 	}
@@ -707,11 +703,9 @@ static int read_capacity(struct my_device *dev,u32 *max_lba,u32 *block_size)
 	}
 
 
-	pr_info("sd_reader: READ CAPACITY residue = %u\n",
-			le32_to_cpu(csw->residue));
+	pr_info("sd_reader: READ CAPACITY residue = %u\n",le32_to_cpu(csw->residue));
 
-	pr_info("sd_reader: READ CAPACITY status = 0x%02x\n",
-			csw->status);
+	pr_info("sd_reader: READ CAPACITY status = 0x%02x\n",csw->status);
 
 	if (csw->status != 0) {
 		pr_err("sd_reader: READ CAPACITY command failed\n");
@@ -770,8 +764,7 @@ static int read_sector(struct my_device *dev,u32 lba,u8 *buffer)
 	cbw->signature = cpu_to_le32(CBW_SIGNATURE);
 	cbw->tag = cpu_to_le32(tag);
 
-	cbw->data_transfer_length =
-		cpu_to_le32(SECTOR_SIZE);
+	cbw->data_transfer_length =cpu_to_le32(SECTOR_SIZE);
 
 	cbw->flags = 0x80;
 
@@ -922,47 +915,6 @@ out:
  * ANALYZE SECTOR 0
  * ---------------------------------------------------------
  */
-static int my_usb_suspend(struct usb_interface *interface,pm_message_t message)
-{
-	struct my_device *dev;
-
-	dev = usb_get_intfdata(interface);
-
-	if (!dev)
-		return 0;
-
-	pr_info("sd_reader: USB suspend requested\n");
-
-	pr_info("sd_reader: USB speed before suspend = %d\n",dev->udev->speed);
-
-	/*
-	 * No transfers should be running here.
-	 *
-	 * The USB core/xHCI handles the actual
-	 * USB 3.x link power state transition.
-	 */
-	return 0;
-}
-static int my_usb_reset_resume(struct usb_interface *interface)
-{
-	struct my_device *dev;
-
-	dev = usb_get_intfdata(interface);
-
-	if (!dev)
-		return 0;
-
-	pr_info("sd_reader: USB reset-resume\n");
-
-	/*
-	 * A reset-resume can invalidate device-side state.
-	 *
-	 * Reinitialize BOT state here if necessary.
-	 */
-
-	return 0;
-}
-
 
 static void analyze_sector0(u8 *buffer)
 {
@@ -986,7 +938,6 @@ static void analyze_sector0(u8 *buffer)
 	if (signature == 0xAA55) {
 
 		pr_info("Valid MBR found\n");
-
 	} else {
 
 		pr_info("No MBR signature found\n");
@@ -996,6 +947,7 @@ static void analyze_sector0(u8 *buffer)
 
 	pr_info("----------------------------------\n");
 }
+/*
 static int my_usb_resume(struct usb_interface *interface)
 {
 	struct my_device *dev;
@@ -1010,7 +962,7 @@ static int my_usb_resume(struct usb_interface *interface)
 	pr_info("sd_reader: USB speed after resume = %d\n",dev->udev->speed);
 	return 0;
 }
-
+*/
 /*
  * ---------------------------------------------------------
  * USB PROBE
@@ -1030,15 +982,13 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 	u32 block_size;
 
 	u64 total_blocks;
-	u64 capacity_bytes;
+	u64 capacity_bytes; //total capacity in sd card 
 	int i;
 	int ret;
 	pr_info("sd_reader: USB device detected\n");
 	udev = interface_to_usbdev(interface);
-	//Enable USB autosuspend for power management
-	usb_enable_autosuspend(udev);
 
-	iface = interface->cur_altsetting;
+	iface = interface->cur_altsetting; 
 	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
 	if (!dev)
 		return -ENOMEM;
@@ -1071,13 +1021,9 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 
 			pr_info("  wBytesPerInterval = %u\n",le16_to_cpu(hep->ss_ep_comp.wBytesPerInterval));
 		}
-
 		else if (usb_endpoint_is_bulk_out(ep)) {
-
 			dev->bulk_out = ep->bEndpointAddress;
-
 			pr_info("sd_reader: BULK OUT = 0x%02x\n",dev->bulk_out);
-
 			/*
 			 * SuperSpeed companion descriptor
 			 */
@@ -1096,7 +1042,6 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 	 * Allocate sector buffer
 	 */
 	buffer = kzalloc(SECTOR_SIZE, GFP_KERNEL);
-
 	if (!buffer) {
 		kfree(dev);
 		return -ENOMEM;
@@ -1126,8 +1071,6 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 	pr_info("sd_reader: Starting TEST UNIT READY\n");
 
 	ret = test_unit_ready(dev);
-
-
 	if (ret) {
 
 		pr_err("sd_reader: TEST UNIT READY failed\n");
@@ -1136,12 +1079,13 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 		 */
 		ret = request_sense(dev);
 		if (ret) {
-
 			pr_err("sd_reader: REQUEST SENSE failed: %d\n",ret);
 		}
 		/*
-		 * Some card readers report UNIT ATTENTION after
-		 * media insertion/removal.
+
+ * Some card readers report UNIT ATTENTION after
+		 * media insertion/re
+		 * moval.
 		 *
 		 * Give the reader a short time and retry TUR.
 		 */
@@ -1159,7 +1103,7 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 		}
 	}
 	pr_info("sd_reader: Before delay\n");
-	msleep(4000);
+	//msleep(4000);
 	pr_info("sd_reader: After delay\n");
 
 	pr_info("sd_reader: Starting READ CAPACITY(10)\n");
@@ -1255,18 +1199,12 @@ static struct usb_driver my_usb_driver = {
 	.id_table = my_usb_table,
 	.probe = my_usb_probe,
 	.disconnect = my_usb_disconnect,
-	.suspend=my_usb_suspend,
-	.reset_resume=my_usb_reset_resume,
-	.resume=my_usb_resume,
-	.supports_autosuspend = 1,
-
 };
 
 
 module_usb_driver(my_usb_driver);
 
-
-MODULE_LICENSE("GPL");
+//MODULE_LICENSE("GPL");
 
 MODULE_AUTHOR("Satheesh");
 
