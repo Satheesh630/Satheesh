@@ -39,7 +39,7 @@ static int my_probe(struct usb_interface *interface,const struct usb_device_id *
             iface->desc.bInterfaceNumber,
             iface->desc.bAlternateSetting,
             iface->desc.bNumEndpoints);
-
+    print_usb_speed(udev);
     ret = find_usb_information(iface, my_uas);
     if (ret) {
         pr_err("SuperSpeed: Failed to find USB information: %d\n", ret);

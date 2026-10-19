@@ -76,4 +76,5 @@ struct uas_command_iu {
 
 int find_usb_information(struct usb_host_interface *iface,struct uas_device *my_uas);
 int uas_inquiry(struct uas_device *dev);
+void print_usb_speed(struct usb_device *udev);
 #endif

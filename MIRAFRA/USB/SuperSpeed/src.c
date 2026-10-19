@@ -5,6 +5,10 @@ static void uas_data_in_complete(struct urb *urb);
 static void uas_status_complete(struct urb *urb);
 
 /* Get the UAS endpoints and stream information from the selected alt setting. */
+  void print_usb_speed(struct usb_device *udev)
+    {
+        dev_info(&udev->dev, "Current USB speed: %s\n",usb_speed_string(udev->speed));
+    }
 int find_usb_information(struct usb_host_interface *iface, struct uas_device *my_uas)
 {
     int i;
@@ -230,8 +234,6 @@ int uas_inquiry(struct uas_device *dev)
         goto error;
     }
 
-
-
     dev->cmd_urb = cmd_urb;
     dev->data_in_urb = data_in_urb;
     dev->status_urb = status_urb;
@@ -250,10 +252,6 @@ int uas_inquiry(struct uas_device *dev)
     cmd_iu->tag = cpu_to_be16(tag);
     cmd_iu->prio_attr = 0x00;
     cmd_iu->len = 0;
-
-    memset(cmd_iu->lun, 0, sizeof(cmd_iu->lun));
-
-    memset(cmd_iu->cdb, 0, sizeof(cmd_iu->cdb));
 
     cmd_iu->cdb[0] = 0x12;
     cmd_iu->cdb[1] = 0x00;
@@ -297,9 +295,7 @@ int uas_inquiry(struct uas_device *dev)
 
     if (ret) {
         pr_err("UAS: DATA-IN URB submit failed: %d\n", ret);
-
         usb_kill_urb(status_urb);
-
         goto error;
     }
 
