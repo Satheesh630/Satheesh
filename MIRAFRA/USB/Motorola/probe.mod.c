@@ -18,49 +18,35 @@ __section(".gnu.linkonce.this_module") = {
 
 static const struct modversion_info ____versions[]
 __used __section("__versions") = {
-	{ 0xd272d446, "__fentry__" },
-	{ 0x9f222e1e, "alloc_chrdev_region" },
-	{ 0xe8213e80, "_printk" },
-	{ 0xd2554727, "cdev_init" },
-	{ 0xdb375fb3, "cdev_add" },
-	{ 0x326b4c7f, "class_create" },
 	{ 0xd272d446, "__x86_return_thunk" },
-	{ 0x2e921116, "cdev_del" },
-	{ 0x07a5cde6, "class_destroy" },
-	{ 0x0bc5fb0d, "unregister_chrdev_region" },
-	{ 0xd954c786, "module_layout" },
+	{ 0xe8213e80, "_printk" },
+	{ 0x38a1949b, "usb_deregister" },
+	{ 0xd272d446, "__fentry__" },
+	{ 0x00af752c, "usb_register_driver" },
+	{ 0x35a0db66, "module_layout" },
 };
 
 static const u32 ____version_ext_crcs[]
 __used __section("__version_ext_crcs") = {
 	0xd272d446,
-	0x9f222e1e,
 	0xe8213e80,
-	0xd2554727,
-	0xdb375fb3,
-	0x326b4c7f,
+	0x38a1949b,
 	0xd272d446,
-	0x2e921116,
-	0x07a5cde6,
-	0x0bc5fb0d,
-	0xd954c786,
+	0x00af752c,
+	0x35a0db66,
 };
 static const char ____version_ext_names[]
 __used __section("__version_ext_names") =
-	"__fentry__\0"
-	"alloc_chrdev_region\0"
-	"_printk\0"
-	"cdev_init\0"
-	"cdev_add\0"
-	"class_create\0"
 	"__x86_return_thunk\0"
-	"cdev_del\0"
-	"class_destroy\0"
-	"unregister_chrdev_region\0"
+	"_printk\0"
+	"usb_deregister\0"
+	"__fentry__\0"
+	"usb_register_driver\0"
 	"module_layout\0"
 ;
 
 MODULE_INFO(depends, "");
 
+MODULE_ALIAS("usb:v2E82p22B8d*dc*dsc*dp*ic*isc*ip*in*");
 
-MODULE_INFO(srcversion, "243839D19060DF13024305E");
+MODULE_INFO(srcversion, "D061A682329FA02B27338E1");

@@ -49,7 +49,6 @@ struct my_device {
 
 	u8 bulk_in;
 	u8 bulk_out;
-	
 };
 
 
@@ -658,14 +657,8 @@ static int read_capacity(struct my_device *dev,u32 *max_lba,u32 *block_size)
 		((u32)buffer[6] << 8) |
 		buffer[7];
 
-
-	pr_info("sd_reader: Maximum LBA = %u\n",
-			*max_lba);
-
-	pr_info("sd_reader: Block Size  = %u bytes\n",
-			*block_size);
-
-
+	pr_info("sd_reader: Maximum LBA = %u\n",*max_lba);
+	pr_info("sd_reader: Block Size  = %u bytes\n",*block_size);
 	/*
 	 * Receive CSW
 	 */
@@ -927,11 +920,6 @@ static void analyze_sector0(u8 *buffer)
 	signature = buffer[510] | ((u16)buffer[511] << 8);
 
 
-	pr_info("----------------------------------\n");
-	pr_info("       SECTOR 0 ANALYSIS\n");
-	pr_info("----------------------------------\n");
-
-
 	pr_info("MBR signature = 0x%04x\n",signature);
 
 
@@ -1017,7 +1005,7 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 
 			pr_info("  bMaxBurst = %u\n",hep->ss_ep_comp.bMaxBurst);
 
-			pr_info("  bmAttributes = 0x%02x\n",hep->ss_ep_comp.bmAttributes);
+			pr_info("  bmAttributes = 0x%x\n",hep->ss_ep_comp.bmAttributes);
 
 			pr_info("  wBytesPerInterval = %u\n",le16_to_cpu(hep->ss_ep_comp.wBytesPerInterval));
 		}
@@ -1072,7 +1060,6 @@ static int my_usb_probe(struct usb_interface *interface,const struct usb_device_
 
 	ret = test_unit_ready(dev);
 	if (ret) {
-
 		pr_err("sd_reader: TEST UNIT READY failed\n");
 		/*
 		 * Ask the device why it is not ready.

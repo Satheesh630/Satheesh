@@ -263,6 +263,10 @@ int uas_inquiry(struct uas_device *dev)
     usb_fill_bulk_urb(status_urb,dev->udev,usb_rcvbulkpipe(dev->udev,dev->status_ep->desc.bEndpointAddress),status_buf,64,uas_status_complete,dev);
 
     status_urb->stream_id = tag;
+    // we also can fill manually 
+    //status_urb->transfer_buffer = status_buf;
+    //status_urb ->transfer_buffer_lenght=64;
+    //status_urb->complete = uas_status_complete like this 
 
     pr_info("UAS: Submitting STATUS URB\n");
 
@@ -315,6 +319,7 @@ int uas_inquiry(struct uas_device *dev)
     ret = usb_submit_urb(cmd_urb, GFP_KERNEL);
 
     if (ret) {
+        usb_rcvbulkpipe(dev->udev, dev->status_ep->desc.bEndpointAddress)
         pr_err("UAS: COMMAND URB submit failed: %d\n", ret);
 
         usb_kill_urb(data_in_urb);

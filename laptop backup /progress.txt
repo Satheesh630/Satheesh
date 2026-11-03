@@ -1,0 +1,150 @@
+15/Jun/2026
+	1.leetcode problems 2
+	2.uart ioremap revise 
+	3.R&D on internal project
+16/Jun/2026
+------------
+	1.2 leetcode 234,147
+	2.ARM architecture revise 
+	3.Internal Project start practically 
+	4.ioremaps
+17/Jun/2026
+	1.leetcode 114
+	2.Virtual memory concepts
+	3.Completed implemented platform UART using platform Bus 
+18/Jun/2026
+	1.More Understanding about cache memory and Coherance 
+	2.Leetcode Questions
+	3.
+23/Jun/2026
+	1.Leetcode
+	2.Completed Kernel crash analysis
+	3.About Memory Controller
+24/Jun/2026
+	1.Leetcode completed 2
+	2.Completed Cache concepts
+	3.Mappings, accessing cache
+	3.completed Kmemleak
+25/Jun/2026
+	1.Leetcode 2 problems
+	2.About PCI and PCIEe bus and writing demo driver 
+26/Jun/2026
+	1.PCI and PCIe and inside PCIE bus transfer 
+	2.Hardware data flow via PCIe bus and packets, Types of packets TLP
+	3.Leetcode 
+	4.probing revision 
+29/Jun/2026
+	1.Leetcode
+	2.PCI components and enumuration and device Training
+30/Jun/2026
+	1.Leetcode
+	2.Booting process revision and MicroController Booting process
+	3.PCIe bus basic driver understanding pci_dev structure main contents 
+01/Jul/2026
+	1.Device Drivers Revision Char drivers,Gpio
+	2.Pcie driver pci subsystem
+	3.Leetcode
+02/Jul/2026
+	1.File system basics about ext32 and fat32 how vfs knows the file system
+	2.__init and __exit necessity
+	3.Revision of GPIO sub system
+03/Jul/2026
+	1.Leetcode
+	2.Revision of process Scheduling and States of processes
+06/Jul/2026
+	1.Leetcode 
+	2.Dispathcer correlating process states with schedulars about cpu throughpt, waittime, turnaround time
+	3.Scheduling algorighms
+07/Jul/2026
+	1.Leetcode
+	2.PCIe revision and selfintro preparation
+	3.Device drivers revision
+08/Jul/2026
+	1.2 medium level leetcodes 
+	2.prepared on project done on LDD
+	3.
+09/Jul/2026
+	1.Leetcode 
+	2.revised all protocols 
+10/Jul/2026
+	1.Leetcode (1 hard )
+	2.Device Drivers reviced ioctl
+13/Jul/2026
+	1.leetcode 
+	2.Dynamic memory allocation in kernel 
+	3.Basics about Audio what is ALSA,codec,i2s how they are related
+14/Jul/2026
+	1.leetcode creating simple hasm map
+	2.kmalloc and vmalloc revision
+15/Jul/2026
+	1.Hackerrank 
+	2.types of OS 
+	3.Types of kernel
+16/Jul/2026
+	1.6 hackerrank med 
+	2.DMA theory and scenarios on interrupts 
+	3.One leetcode 
+17/Jul/2026
+	1.2 med hackerrank
+	2.Little about Bus arbiter
+	3.Major and minor numbers
+20/Jul/2026
+	1.1 easy and 1 hard problem
+	2.Revision of Cache coherance and consistancy concepts
+	3.Revision of Virtual memory
+21/Jul/2026
+	1.2 hard hackerrank
+	2.Revised virtual memory topic
+	3.Revision of LDD concepts
+22/Jul/2026
+	1.Hackerrank problems
+	2.
+27/Jul/2026
+	1.Completed all Hackerrank problems in C 
+28/Jul/2026
+	1.Revision of /sysfs /dev /proc 
+	2.Booting proccess and secure and uboot process
+	3.Cache concepts
+
+29/Jul/2026
+	1.Studied about cache mapping methods
+	2.C problem solving.
+	
+30/Jul/2026
+	1.Hackerrank
+	2.x86 ISA 
+	3.difference between user,kernel mode and CPU processing modes
+31/Jul/2026
+	1.Hackerrank
+	2.Theory about JTAG
+03/Aug/2026
+	1.Hackerrank problems
+	2.Platform drivers and DTS at boot time
+	3.Revised platform drivers
+04/Aug/2026
+	1.x86 Architecture
+	2.x86 vs RISC V vs ARM
+	3.Pipelining in CISC
+05/Aug/2026
+	1.4 hackerrank problems
+11/Aug/2026
+	1.Hackerrank problems solved
+	2.learnt about USB3.0 Enumuration process
+	3.Device Descriptors
+	4.Configuration descriptors 
+12/Aug/2026
+	1.Hackerrank
+	2.Learnt about Endpoints
+	3.xHCI and URB and TRB
+	4.MODULE_TABLE
+13/Aug/2026
+	1.USB probe code
+	2.Hackerrank
+	3.printed verified vendor and product id in probe
+14/Aug/2026
+	1.Hackerrank 
+	2.
+17/Aug/2026
+	1.USB started implementing read sd card 
+	2.Hackerrank
+	3.CbW and CSW
