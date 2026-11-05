@@ -41,6 +41,8 @@ static int my_probe(struct usb_interface *interface,const struct usb_device_id *
             iface->desc.bNumEndpoints);
     print_usb_speed(udev);
     ret = find_usb_information(iface, my_uas);
+    
+
     if (ret) {
         pr_err("SuperSpeed: Failed to find USB information: %d\n", ret);
         goto err_free_uas;
@@ -69,6 +71,7 @@ static int my_probe(struct usb_interface *interface,const struct usb_device_id *
     pr_info("UAS: usb_alloc_streams returned %d\n", ret);
     usb_set_intfdata(interface, my_uas);
     uas_inquiry(my_uas);
+    uas_test_unit_ready(my_uas);
 
     pr_info("UAS: Probe successful\n");
 

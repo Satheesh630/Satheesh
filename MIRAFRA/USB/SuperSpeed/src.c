@@ -163,6 +163,8 @@ int uas_test_unit_ready(struct uas_device *dev)
     usb_fill_bulk_urb(cmd_urb,dev->udev,usb_sndbulkpipe(dev->udev, dev->command_ep->desc.bEndpointAddress),cmd_iu,sizeof(*cmd_iu),uas_command_complete,dev);
 
     cmd_urb->stream_id = 0;
+//    cmd_urb->tag = tag;
+    
     pr_info("UAS: Submitting COMMAND URB\n");
     pr_info("    endpoint = 0x%02x\n",dev->command_ep->desc.bEndpointAddress);
     pr_info("    stream   = %u\n",cmd_urb->stream_id);
@@ -239,7 +241,6 @@ int uas_inquiry(struct uas_device *dev)
     dev->status_urb = status_urb;
 
     dev->cmd_iu = cmd_iu;
-
     dev->data_in_buf = data_in_buf;
     dev->status_buf = status_buf;
 
@@ -262,7 +263,7 @@ int uas_inquiry(struct uas_device *dev)
 
     usb_fill_bulk_urb(status_urb,dev->udev,usb_rcvbulkpipe(dev->udev,dev->status_ep->desc.bEndpointAddress),status_buf,64,uas_status_complete,dev);
 
-    status_urb->stream_id = tag;
+        status_urb->stream_id = tag;
     // we also can fill manually 
     //status_urb->transfer_buffer = status_buf;
     //status_urb ->transfer_buffer_lenght=64;
@@ -319,7 +320,6 @@ int uas_inquiry(struct uas_device *dev)
     ret = usb_submit_urb(cmd_urb, GFP_KERNEL);
 
     if (ret) {
-        usb_rcvbulkpipe(dev->udev, dev->status_ep->desc.bEndpointAddress)
         pr_err("UAS: COMMAND URB submit failed: %d\n", ret);
 
         usb_kill_urb(data_in_urb);
